@@ -1,7 +1,7 @@
-import UserList from "./exercises/UserList";
+import UserReducer from "./exercises/UserReducer";
 
 function App() {
-  return <UserList />;
+  return <UserReducer />;
 }
 
 export default App;
