@@ -1,5 +1,8 @@
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
+import { users as initialUsers, UsersType } from "./data";
+
+let users = [...initialUsers];
 
 const app = express();
 
@@ -23,17 +26,6 @@ app.use(express.json());
 app.use(myLogger);
 app.use(cors());
 
-type UsersType = {
-  name: string;
-  email: string;
-  id: string;
-};
-
-let users: UsersType[] = [
-  { name: "Anderson", email: "anderson@test.com", id: "1" },
-  { name: "Maria", email: "maria@test.com", id: "2" },
-  { name: "James", email: "james@test.com", id: "3" },
-];
 
 app.get("/api/health", async (req, res, next) => {
   try {
@@ -64,10 +56,12 @@ app.get("/api/users", async (req, res, next) => {
 
 app.post("/api/users", async (req, res, next) => {
   try {
-    const { name, email } = req.body;
-    const id = Math.random().toString();
-    users.push({ name, email, id });
-    return res.status(201).json({ id });
+    const newUser: UsersType = {
+      ...req.body,
+      id: Math.random().toString(),
+    };
+    users.push(newUser);
+    return res.status(201).json({ user: newUser });
   } catch (e) {
     next(e);
   }
@@ -76,17 +70,15 @@ app.post("/api/users", async (req, res, next) => {
 app.put("/api/users/:id", async (req, res, next) => {
   try {
     const userId = req.params.id;
-    const { name, email } = req.body;
 
     const hasUser = users.find((u) => u.id === userId);
     if (!hasUser) return res.status(404).send("User not found");
 
-    const updatedUser = users.map((user) => {
-      return user.id === userId ? { ...user, name, email } : user;
+    users = users.map((user) => {
+      return user.id === userId ? { ...user, ...req.body } : user;
     });
-    users = updatedUser;
 
-    return res.status(201).json({ user: updatedUser });
+    return res.status(200).json({ user: users.find((u) => u.id === userId) });
   } catch (e) {
     next(e);
   }
