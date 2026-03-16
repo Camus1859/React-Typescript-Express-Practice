@@ -26,8 +26,7 @@ app.use(express.json());
 app.use(myLogger);
 app.use(cors());
 
-
-app.get("/api/health", async (req, res, next) => {
+app.get("/api/users", (req, res, next) => {
   try {
     return res.status(200).json({ users });
   } catch (e) {
@@ -35,60 +34,56 @@ app.get("/api/health", async (req, res, next) => {
   }
 });
 
-app.get("/api/users/:id", async (req, res, next) => {
-  try {
-    const id = req.params.id;
-
-    const user = users.find((u) => u.id === id);
-    return res.status(200).json({ user });
-  } catch (e) {
-    next(e);
-  }
-});
-
-app.get("/api/users", async (req, res, next) => {
-  try {
-    return res.status(200).json({ users });
-  } catch (e) {
-    next(e);
-  }
-});
-
-app.post("/api/users", async (req, res, next) => {
-  try {
-    const newUser: UsersType = {
-      ...req.body,
-      id: Math.random().toString(),
-    };
-    users.push(newUser);
-    return res.status(201).json({ user: newUser });
-  } catch (e) {
-    next(e);
-  }
-});
-
-app.put("/api/users/:id", async (req, res, next) => {
+app.get("/api/users/:id", (req, res, next) => {
   try {
     const userId = req.params.id;
 
-    const hasUser = users.find((u) => u.id === userId);
-    if (!hasUser) return res.status(404).send("User not found");
+    const myUserId = users.find((u) => u.id === userId);
+    if (!myUserId) throw new Error("User not found");
 
-    users = users.map((user) => {
-      return user.id === userId ? { ...user, ...req.body } : user;
-    });
-
-    return res.status(200).json({ user: users.find((u) => u.id === userId) });
+    res.status(200).json({ user: myUserId });
   } catch (e) {
     next(e);
   }
 });
 
-app.delete("/api/users/:id", async (req, res, next) => {
+app.post("/api/users", (req, res, next) => {
+  try {
+    const body = req.body;
+    const newUser = { id: Math.random().toString(), ...body };
+
+    users = [...users, newUser];
+    return res.status(201).json(newUser);
+  } catch (e) {
+    next(e);
+  }
+});
+
+app.put("/api/users/:id", (req, res, next) => {
   try {
     const id = req.params.id;
-    const hasUser = users.find((u) => u.id === id);
-    if (!hasUser) return res.status(404).send("User not found");
+    const body = req.body;
+
+    const user = users.find((u) => u.id === id);
+    if (!user) return res.status(404).send("User not found");
+
+    const updatedUsers = users.map((user) => {
+      return user.id === id ? { ...user, ...body } : user;
+    });
+
+    users = updatedUsers;
+
+    return res.status(200).json({ users: users.find((u) => u.id === id) });
+  } catch (e) {
+    next(e);
+  }
+});
+
+app.delete("/api/users/:id", (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const removedUser = users.find((u) => u.id === id);
+    if (!removedUser) return res.status(404).send("User not found");
 
     users = users.filter((u) => u.id !== id);
     return res.status(200).json({ id });
@@ -100,13 +95,13 @@ app.delete("/api/users/:id", async (req, res, next) => {
 app.get("/api/posts", async (req, res, next) => {
   try {
     const response = await fetch("https://jsonplaceholder.typicode.com/posts");
-    if (!response.ok) throw new Error("Unable to fetch data");
+    if (!response.ok) throw new Error("Unable to fetch posts");
 
-    const data = await response.json();
+    const results = await response.json();
 
-    return res.status(200).json(data.slice(0, 10));
+    return res.status(200).json({ result: results.slice(0, 10) });
   } catch (e) {
-    next(e)
+    next(e);
   }
 });
 
