@@ -65,6 +65,8 @@ app.put("/api/users/:id", (req, res, next) => {
     const body = req.body;
 
     const user = users.find((u) => u.id === id);
+
+    console.log(user)
     if (!user) return res.status(404).send("User not found");
 
     const updatedUsers = users.map((user) => {
@@ -73,7 +75,7 @@ app.put("/api/users/:id", (req, res, next) => {
 
     users = updatedUsers;
 
-    return res.status(200).json({ users: users.find((u) => u.id === id) });
+    return res.status(200).json({ user: users.find((u) => u.id === id) });
   } catch (e) {
     next(e);
   }
