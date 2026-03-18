@@ -91,7 +91,7 @@ const UserManager = () => {
     getData();
   }, []);
 
-  const onSubmitHandler = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (editId === null) {
       dispatch({
@@ -99,10 +99,39 @@ const UserManager = () => {
         payload: { name: nameValue, email: emailValue },
       });
     } else {
-      dispatch({
-        type: ACTION.EDIT,
-        payload: { name: nameValue, email: emailValue, id: editId },
-      });
+      // dispatch({
+      //   type: ACTION.EDIT,
+      //   payload: { name: nameValue, email: emailValue, id: editId },
+      // });
+
+      console.log(editId);
+
+      try {
+        const response = await fetch(
+          `http://localhost:3001/api/users/${editId}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: nameValue,
+              email: emailValue,
+              id: editId,
+            }),
+          },
+        );
+
+        if (!response.ok) throw new Error("Unable to update user");
+
+        const { user } = await response.json();
+
+        const { id, name, email } = user;
+
+        console.log(users);
+
+        dispatch({ type: ACTION.EDIT, payload: { id, name, email } });
+      } catch (e) {
+        console.error(e);
+      }
     }
     setNameValue("");
     setEmailValue("");
