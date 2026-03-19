@@ -67,30 +67,7 @@ const EmployeeDirectory = () => {
   const [externalUsers, setExternalUsers] = useState<
     { name: string; email: string }[]
   >([]);
-
-  useEffect(() => {
-    const getEmployees = async () => {
-      try {
-        setIsLoading(true);
-        const response = await fetch("http://localhost:3006/api/employees");
-        if (!response.ok) throw new Error("Unable to fetch data");
-
-        const { employees: data } = (await response.json()) as {
-          employees: Employees[];
-        };
-        if (!data) throw new Error("No employee data");
-
-        dispatch({ type: ACTION.SET, payload: data });
-      } catch (e) {
-        setIsError(true);
-        console.error(e);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    getEmployees();
-  }, []);
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   useEffect(() => {
     const getExternalUsers = async () => {
@@ -106,6 +83,31 @@ const EmployeeDirectory = () => {
 
     getExternalUsers();
   }, []);
+
+  useEffect(() => {
+    const fetchFiltered = async () => {
+      try {
+        setIsLoading(true);
+        const url =
+          filteredDept === "All"
+            ? "http://localhost:3006/api/employees"
+            : `http://localhost:3006/api/employees?department=${filteredDept}`;
+
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Unable to fetch data");
+
+        const { employees: data } = await response.json();
+        dispatch({ type: ACTION.SET, payload: data });
+      } catch (e) {
+        setIsError(true);
+        console.error(e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchFiltered();
+  }, [filteredDept]);
 
   const onSubmitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -174,14 +176,32 @@ const EmployeeDirectory = () => {
   }
   console.log(filteredDept);
 
-  const filteredEmployees = employees.filter((e) =>
-    filteredDept === "All"
-      ? true
-      : e.department.toLowerCase() === filteredDept.toLocaleLowerCase(),
-  );
   return (
     <>
       <h2>Employee Directory</h2>
+      <form
+        onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
+          e.preventDefault()
+          console.log(searchQuery);
+          const response = await fetch(
+            `http://localhost:3006/api/employees/search?q=${searchQuery}`,
+          );
+          if (!response.ok) throw new Error("Search fetch failed");
+
+          const { employees } = await response.json();
+
+          dispatch({ type: ACTION.SET, payload: employees });
+        }}
+      >
+        <input
+          value={searchQuery}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setSearchQuery(e.target.value)
+          }
+        />
+        <button disabled={searchQuery === ""} type="submit">Search</button>
+      </form>
+
       <form onSubmit={onSubmitHandler}>
         <input
           value={employeeName}
@@ -225,9 +245,9 @@ const EmployeeDirectory = () => {
         </label>
         <button type="submit">{editEmployeeId ? "Edit" : "Add"}</button>
       </form>
-      {filteredEmployees && filteredEmployees.length > 0 ? (
+      {employees && employees.length > 0 ? (
         <ul>
-          {filteredEmployees.map((e) => {
+          {employees.map((e) => {
             return (
               <div key={e.id}>
                 <li>
