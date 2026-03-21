@@ -28,7 +28,19 @@ app.use(cors());
 
 app.get("/api/users", (req, res, next) => {
   try {
-    return res.status(200).json({ users });
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const start = (page - 1) * limit;
+    const paginatedUsers = users.slice(start, start + limit);
+    const totalPages = Math.ceil(users.length / limit);
+
+    return res.status(200).json({
+      users: paginatedUsers,
+      page,
+      limit,
+      totalPages,
+      totalUsers: users.length,
+    });
   } catch (e) {
     next(e);
   }
