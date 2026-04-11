@@ -19,32 +19,53 @@ const FormValidation = () => {
     password: false,
     confirmPassword: false,
   });
+  const [showAccountCreated, setShowAccountCreated] = useState<boolean>(false);
 
   const onSubmitHandler = (e) => {
+    let err = false;
     e.preventDefault();
 
     if (name.trim().length < 3) {
       setError((prevCount) => ({ ...prevCount, name: true }));
+      err = true;
     }
 
     if (!email.trim().includes("@") || !email.trim().includes(".")) {
       setError((prevCount) => ({ ...prevCount, email: true }));
+      err = true;
     }
 
     const hasNumber = /\d/.test(password.trim());
 
     if (password.length < 8 || !hasNumber) {
       setError((prevCount) => ({ ...prevCount, password: true }));
+      err = true;
     }
 
     if (password !== confirmPassword) {
       setError((prevCount) => ({ ...prevCount, confirmPassword: true }));
+      err = true;
+    }
+
+    if (!err) {
+      setShowAccountCreated(true);
+      setError({
+        name: false,
+        email: false,
+        password: false,
+        confirmPassword: false,
+      });
+      setName("")
+      setEmail("")
+      setPassword("")
+      setConfirmPassword("")
     }
   };
 
   return (
     <div className="form-container">
       <h1>Create Account</h1>
+      {showAccountCreated && <p>Account Created!</p>}
       <form onSubmit={onSubmitHandler}>
         <input
           onBlur={() => {
