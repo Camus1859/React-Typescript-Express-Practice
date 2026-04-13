@@ -26,24 +26,24 @@ const FormValidation = () => {
     e.preventDefault();
 
     if (name.trim().length < 3) {
-      setError((prevCount) => ({ ...prevCount, name: true }));
+      setError((prevData) => ({ ...prevData, name: true }));
       err = true;
     }
 
     if (!email.trim().includes("@") || !email.trim().includes(".")) {
-      setError((prevCount) => ({ ...prevCount, email: true }));
+      setError((prevData) => ({ ...prevData, email: true }));
       err = true;
     }
 
     const hasNumber = /\d/.test(password.trim());
 
     if (password.length < 8 || !hasNumber) {
-      setError((prevCount) => ({ ...prevCount, password: true }));
+      setError((prevData) => ({ ...prevData, password: true }));
       err = true;
     }
 
     if (password !== confirmPassword) {
-      setError((prevCount) => ({ ...prevCount, confirmPassword: true }));
+      setError((prevData) => ({ ...prevData, confirmPassword: true }));
       err = true;
     }
 
@@ -55,29 +55,29 @@ const FormValidation = () => {
         password: false,
         confirmPassword: false,
       });
-      setName("")
-      setEmail("")
-      setPassword("")
-      setConfirmPassword("")
+      setName("");
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
     }
   };
 
   return (
-    <div className="form-container">
+    <div className="main-container">
       <h1>Create Account</h1>
       {showAccountCreated && <p>Account Created!</p>}
-      <form onSubmit={onSubmitHandler}>
+      <form className="form" onSubmit={onSubmitHandler}>
         <input
           onBlur={() => {
             if (name.trim().length < 3) {
-              setError((prevCount) => ({ ...prevCount, name: true }));
+              setError((prevData) => ({ ...prevData, name: true }));
             }
           }}
           placeholder="Name"
           value={name}
           onChange={(e) => {
             setName(e.target.value);
-            setError((prevCount) => ({ ...prevCount, name: false }));
+            setError((prevData) => ({ ...prevData, name: false }));
           }}
         />
         {error.name && <p>Error with name</p>}
@@ -85,40 +85,41 @@ const FormValidation = () => {
         <input
           onBlur={() => {
             if (!email.trim().includes("@") || !email.trim().includes(".")) {
-              setError((prevCount) => ({ ...prevCount, email: true }));
+              setError((prevData) => ({ ...prevData, email: true }));
             }
           }}
           placeholder="Email"
           value={email}
           onChange={(e) => {
             setEmail(e.target.value);
-            setError((prevCount) => ({ ...prevCount, email: false }));
+            setError((prevData) => ({ ...prevData, email: false }));
           }}
         />
         {error.email && <p>Error with email</p>}
+
         <input
           type="password"
           onBlur={() => {
             const hasNumber = /\d/.test(password.trim());
-
             if (password.length < 8 || !hasNumber) {
-              setError((prevCount) => ({ ...prevCount, password: true }));
+              setError((prevData) => ({ ...prevData, password: true }));
             }
           }}
           placeholder="Password"
           value={password}
           onChange={(e) => {
             setPassword(e.target.value);
-            setError((prevCount) => ({ ...prevCount, password: false }));
+            setError((prevData) => ({ ...prevData, password: false }));
           }}
         />
         {error.password && <p>Error with password</p>}
+
         <input
           type="password"
           onBlur={() => {
             if (password !== confirmPassword) {
-              setError((prevCount) => ({
-                ...prevCount,
+              setError((prevData) => ({
+                ...prevData,
                 confirmPassword: true,
               }));
             }
@@ -127,10 +128,14 @@ const FormValidation = () => {
           value={confirmPassword}
           onChange={(e) => {
             setConfirmPassword(e.target.value);
-            setError((prevCount) => ({ ...prevCount, confirmPassword: false }));
+            setError((prevData) => ({
+              ...prevData,
+              confirmPassword: false,
+            }));
           }}
         />
         {error.confirmPassword && <p>Error with confirm password</p>}
+
         <button type="submit">Create Account</button>
       </form>
     </div>
