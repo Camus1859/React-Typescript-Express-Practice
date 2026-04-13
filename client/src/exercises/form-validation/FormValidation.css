@@ -11,3 +11,16 @@
     gap: 5px;
     width: 400px;
 }
+
+.text-error{
+    font-size: 10px;
+    color: red;
+}
+
+.input-error{
+    border: 1px solid red
+}
+
+.success-msg{
+    color: green
+}

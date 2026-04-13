@@ -22,7 +22,6 @@ const FormValidation = () => {
   const [confirmPasswordErrorMsg, setConfirmPasswordErrorMsg] =
     useState<string>("");
   const [passwordErrorMsg, setPasswordErrorMsg] = useState<string>("");
-
   const [showAccountCreated, setShowAccountCreated] = useState<boolean>(false);
 
   const onSubmitHandler = (e) => {
@@ -114,6 +113,7 @@ const FormValidation = () => {
             const hasNumber = /\d/.test(password.trim());
             if (password.length < 8 || !hasNumber) {
               setError((prevData) => ({ ...prevData, password: true }));
+              setPasswordErrorMsg("Must have 8 characters and one number");
             }
           }}
           placeholder="Password"
@@ -145,7 +145,6 @@ const FormValidation = () => {
               ...prevData,
               confirmPassword: false,
             }));
-            setPasswordErrorMsg("Must have 8 characters and one number");
           }}
         />
         {error.confirmPassword && (
